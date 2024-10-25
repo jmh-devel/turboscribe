@@ -1,9 +1,12 @@
 import requests
 from typing import Optional, Dict, Any, List
 
+
 class TurboScribeError(Exception):
     """Custom exception for TurboScribe API errors."""
+
     pass
+
 
 class TurboScribeClient:
     """
@@ -12,13 +15,13 @@ class TurboScribeClient:
     Attributes:
         api_key (str): API key for authenticating with the TurboScribe API.
     """
-    
+
     BASE_URL = "https://api.turboscribe.ai"
-    
+
     def __init__(self, api_key: str):
         """
         Initializes the TurboScribeClient with an API key.
-        
+
         Parameters:
             api_key (str): API key for authenticating with the TurboScribe API.
         """
@@ -28,15 +31,15 @@ class TurboScribeClient:
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         """
         Internal method to handle API requests.
-        
+
         Parameters:
             method (str): HTTP method (e.g., 'GET', 'POST', 'DELETE').
             endpoint (str): API endpoint (e.g., '/api/upload').
             kwargs: Additional arguments for the request (e.g., params, data, files).
-        
+
         Returns:
             Dict[str, Any]: JSON response data.
-        
+
         Raises:
             TurboScribeError: If the request fails or returns an error response.
         """
@@ -48,7 +51,13 @@ class TurboScribeClient:
         except requests.RequestException as e:
             raise TurboScribeError(f"API request failed: {e}")
 
-    def upload_file(self, file_path: str, language: Optional[str] = None, recognize_speakers: bool = False, mode: Optional[str] = None) -> Dict[str, Any]:
+    def upload_file(
+        self,
+        file_path: str,
+        language: Optional[str] = None,
+        recognize_speakers: bool = False,
+        mode: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Uploads a file for transcription.
 
@@ -61,11 +70,11 @@ class TurboScribeClient:
         Returns:
             Dict[str, Any]: Response containing the transcript ID.
         """
-        files = {'file': open(file_path, 'rb')}
+        files = {"file": open(file_path, "rb")}
         data = {
             "language": language,
             "recognize_speakers": recognize_speakers,
-            "mode": mode
+            "mode": mode,
         }
         return self._request("POST", "/api/upload", files=files, data=data)
 
@@ -82,7 +91,9 @@ class TurboScribeClient:
         data = {"url": url}
         return self._request("POST", "/api/upload/url", json=data)
 
-    def list_recent_transcripts(self, limit: Optional[int] = 100, next_page: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_recent_transcripts(
+        self, limit: Optional[int] = 100, next_page: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """
         Lists recent transcripts.
 
@@ -108,7 +119,12 @@ class TurboScribeClient:
         """
         return self._request("GET", f"/api/transcript/{transcript_id}")
 
-    def get_transcript_content(self, transcript_id: str, remove_stopwords: bool = False, remove_timestamps: bool = False) -> Dict[str, Any]:
+    def get_transcript_content(
+        self,
+        transcript_id: str,
+        remove_stopwords: bool = False,
+        remove_timestamps: bool = False,
+    ) -> Dict[str, Any]:
         """
         Fetches transcript content.
 
@@ -120,8 +136,13 @@ class TurboScribeClient:
         Returns:
             Dict[str, Any]: Transcript content with or without modifications.
         """
-        params = {"remove_stopwords": remove_stopwords, "remove_timestamps": remove_timestamps}
-        return self._request("GET", f"/api/transcript/{transcript_id}/content", params=params)
+        params = {
+            "remove_stopwords": remove_stopwords,
+            "remove_timestamps": remove_timestamps,
+        }
+        return self._request(
+            "GET", f"/api/transcript/{transcript_id}/content", params=params
+        )
 
     def delete_transcript(self, transcript_id: str) -> Dict[str, Any]:
         """
