@@ -1,0 +1,9 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+name = "turboscribe"
+version = "0.1.0"
+description = "A Python client for the TurboScribe transcription API"
+authors = [{name = "Joel Hanger"}]
