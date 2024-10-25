@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         VENV_DIR = "venv"
+        PYTHONPATH = "${WORKSPACE}" // Adds project root to PYTHONPATH
     }
     stages {
         stage('Setup') {
@@ -30,12 +31,6 @@ pipeline {
         always {
             archiveArtifacts artifacts: 'docs/build/html/**', allowEmptyArchive: true
             cleanWs()
-        }
-        success {
-            echo 'Build completed successfully!'
-        }
-        failure {
-            echo 'Build failed!'
         }
     }
 }
