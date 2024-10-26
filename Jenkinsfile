@@ -1,29 +1,47 @@
 pipeline {
     agent any
     environment {
-        VENV_DIR = "venv"
-        PYTHONPATH = "${WORKSPACE}" // Adds project root to PYTHONPATH
+        PROJECT_ROOT = "${WORKSPACE}"
     }
     stages {
         stage('Setup') {
             steps {
-                sh 'python3 -m venv ${VENV_DIR}'
-                sh '. ${VENV_DIR}/bin/activate && pip install -r requirements.txt'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'turboscribe-credentials', usernameVariable: 'TURBOSCRIBE_USERNAME', passwordVariable: 'TURBOSCRIBE_PASSWORD')]) {
+                        sh 'python3 -m venv venv'
+                        sh '. venv/bin/activate && pip install -r requirements.txt'
+                    }
+                }
             }
         }
         stage('Lint') {
             steps {
-                sh '. ${VENV_DIR}/bin/activate && flake8 turboscribe/'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'turboscribe-credentials', usernameVariable: 'TURBOSCRIBE_USERNAME', passwordVariable: 'TURBOSCRIBE_PASSWORD')]) {
+                        sh '. venv/bin/activate && flake8 turboscribe/'
+                    }
+                }
             }
         }
         stage('Test') {
             steps {
-                sh '. ${VENV_DIR}/bin/activate && pytest --maxfail=1 --disable-warnings'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'turboscribe-credentials', usernameVariable: 'TURBOSCRIBE_USERNAME', passwordVariable: 'TURBOSCRIBE_PASSWORD')]) {
+                        sh '. venv/bin/activate && PYTHONPATH=$PROJECT_ROOT pytest --maxfail=1 --disable-warnings'
+                    }
+                }
             }
         }
         stage('Build Docs') {
+            when {
+                branch 'main'
+            }
             steps {
-                sh '. ${VENV_DIR}/bin/activate && make -C docs clean html'
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'turboscribe-credentials', usernameVariable: 'TURBOSCRIBE_USERNAME', passwordVariable: 'TURBOSCRIBE_PASSWORD')]) {
+                        sh '. venv/bin/activate && make -C docs clean html'
+                    }
+                }
             }
         }
     }
