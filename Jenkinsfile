@@ -1,32 +1,32 @@
 pipeline {
     agent any
     environment {
-        VENV_DIR = "venv"
-        BRANCH_NAME = "${env.BRANCH_NAME}"
+        TURBOSCRIBE_USERNAME = credentials('turboscribe-credentials', 'username')
+        TURBOSCRIBE_PASSWORD = credentials('turboscribe-credentials', 'password')
     }
     stages {
         stage('Setup') {
             steps {
-                sh 'python3 -m venv ${VENV_DIR}'
-                sh '. ${VENV_DIR}/bin/activate && pip install -r requirements.txt'
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate && pip install -r requirements.txt'
             }
         }
         stage('Lint') {
             steps {
-                sh '. ${VENV_DIR}/bin/activate && flake8 turboscribe/'
+                sh '. venv/bin/activate && flake8 turboscribe/'
             }
         }
         stage('Test') {
             steps {
-                sh '. ${VENV_DIR}/bin/activate && pytest --maxfail=1 --disable-warnings'
+                sh '. venv/bin/activate && pytest --maxfail=1 --disable-warnings'
             }
         }
         stage('Build Docs') {
             when {
-                branch 'main' // Only build docs for main branch
+                branch 'main'
             }
             steps {
-                sh '. ${VENV_DIR}/bin/activate && make -C docs clean html'
+                sh '. venv/bin/activate && make -C docs clean html'
             }
         }
     }
