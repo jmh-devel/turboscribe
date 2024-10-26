@@ -47,7 +47,8 @@ pipeline {
     }
     post {
         always {
-            script {
+            // Wrap post steps in node to satisfy context requirement for archiveArtifacts and cleanWs
+            node {
                 archiveArtifacts artifacts: 'docs/build/html/**', allowEmptyArchive: true
                 cleanWs()
             }
