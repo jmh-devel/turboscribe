@@ -23,4 +23,3 @@ class TestTurboScribeClient(unittest.TestCase):
         mock_request.side_effect = Exception("API request failed")
         with self.assertRaises(TurboScribeError):
             self.client.upload_file("./file.mp3")
-
