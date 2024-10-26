@@ -1,8 +1,6 @@
 pipeline {
     agent any
     environment {
-        TURBOSCRIBE_USERNAME = credentials('turboscribe-credentials', 'username')
-        TURBOSCRIBE_PASSWORD = credentials('turboscribe-credentials', 'password')
         PROJECT_ROOT = "${WORKSPACE}"
     }
     stages {
@@ -29,7 +27,6 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'turboscribe-credentials', usernameVariable: 'TURBOSCRIBE_USERNAME', passwordVariable: 'TURBOSCRIBE_PASSWORD')]) {
-                        // Add PROJECT_ROOT to PYTHONPATH
                         sh '. venv/bin/activate && PYTHONPATH=$PROJECT_ROOT pytest --maxfail=1 --disable-warnings'
                     }
                 }
@@ -50,8 +47,10 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: 'docs/build/html/**', allowEmptyArchive: true
-            cleanWs()
+            script {
+                archiveArtifacts artifacts: 'docs/build/html/**', allowEmptyArchive: true
+                cleanWs()
+            }
         }
     }
 }
