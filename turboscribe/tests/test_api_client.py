@@ -6,14 +6,18 @@ from turboscribe.api_client import TurboScribeClient, TurboScribeError
 
 class TestTurboScribeClient(unittest.TestCase):
     def setUp(self):
-        self.client = TurboScribeClient(api_key="test_key")
+        self.client = TurboScribeClient(username="test_user", password="test_pass")
 
-    @patch("requests.request")
-    def test_upload_file(self, mock_request):
-        mock_request.return_value = MagicMock(
-            status_code=200, json=lambda: {"transcript_id": "12345"}
-        )
-        response = self.client.upload_file("path/to/file.mp3")
+    @patch("requests.Session.post")
+    def test_login(self, mock_post):
+        mock_post.return_value = MagicMock(status_code=200)
+        self.client.login()
+        self.assertTrue(self.client.is_authenticated)
+
+    @patch("requests.Session.post")
+    def test_upload_file(self, mock_post):
+        mock_post.return_value = MagicMock(status_code=200, json=lambda: {"transcript_id": "12345"})
+        response = self.client.upload_file("turboscribe/tests/resources/sample.mp3")
         self.assertEqual(response["transcript_id"], "12345")
 
     # Example test for TurboScribeError
