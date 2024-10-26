@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         VENV_DIR = "venv"
-        PYTHONPATH = "${WORKSPACE}" // Adds project root to PYTHONPATH
+        BRANCH_NAME = "${env.BRANCH_NAME}"
     }
     stages {
         stage('Setup') {
@@ -22,6 +22,9 @@ pipeline {
             }
         }
         stage('Build Docs') {
+            when {
+                branch 'main' // Only build docs for main branch
+            }
             steps {
                 sh '. ${VENV_DIR}/bin/activate && make -C docs clean html'
             }
